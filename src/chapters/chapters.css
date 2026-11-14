@@ -1,0 +1,592 @@
+/*
+ * ECHOES chapter styles — every selector is scoped under .echoes-chapter.
+ * Consumes the shell's theme variables with fallbacks.
+ */
+.echoes-chapter {
+  --ec-bg: var(--color-bg, #070b18);
+  --ec-surface: var(--color-surface, #121b30);
+  --ec-text: var(--color-text, #f4f7ff);
+  --ec-muted: var(--color-muted, #aab8d4);
+  --ec-accent: var(--color-accent, #8ee7dd);
+  --ec-mars: var(--color-mars, #ef9876);
+  --ec-border: var(--color-border, rgba(255, 255, 255, 0.15));
+  --ec-ok: #8be39a;
+  --ec-warn: #ffd27a;
+  --ec-bad: #ff9c9c;
+  --ec-theme: var(--ec-accent);
+  --ec-radius: 14px;
+
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: clamp(16px, 4vw, 32px);
+  color: var(--ec-text);
+  background: var(--ec-bg);
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.echoes-chapter *,
+.echoes-chapter *::before,
+.echoes-chapter *::after {
+  box-sizing: inherit;
+}
+
+.echoes-chapter.ec-theme-mars {
+  --ec-theme: var(--ec-mars);
+}
+.echoes-chapter.ec-theme-deep {
+  --ec-theme: #b9a7ff;
+}
+
+.echoes-chapter a {
+  color: var(--ec-accent);
+  text-underline-offset: 3px;
+}
+
+.echoes-chapter :focus-visible {
+  outline: 3px solid var(--ec-accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.echoes-chapter .ec-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.echoes-chapter .ec-muted {
+  color: var(--ec-muted);
+}
+.echoes-chapter .ec-small {
+  font-size: 0.85rem;
+}
+
+/* ---------- header ---------- */
+.echoes-chapter .ec-header {
+  margin-bottom: 1.5rem;
+}
+.echoes-chapter .ec-kicker {
+  margin: 1rem 0 0.25rem;
+  color: var(--ec-theme);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.echoes-chapter .ec-title {
+  margin: 0;
+  font-size: clamp(1.6rem, 5vw, 2.4rem);
+  line-height: 1.15;
+}
+.echoes-chapter .ec-subtitle {
+  margin: 0.4rem 0 1rem;
+  color: var(--ec-muted);
+}
+.echoes-chapter .ec-progress {
+  display: flex;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.echoes-chapter .ec-progress li {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ec-border);
+}
+.echoes-chapter .ec-progress li.is-done {
+  background: color-mix(in srgb, var(--ec-theme) 55%, transparent);
+}
+.echoes-chapter .ec-progress li.is-current {
+  background: var(--ec-theme);
+}
+
+/* ---------- buttons ---------- */
+.echoes-chapter .ec-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4em;
+  min-height: 44px;
+  padding: 0.55em 1.1em;
+  border: 1px solid var(--ec-border);
+  border-radius: 999px;
+  background: var(--ec-surface);
+  color: var(--ec-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.echoes-chapter .ec-btn:hover:not(:disabled) {
+  border-color: var(--ec-theme);
+}
+.echoes-chapter .ec-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.echoes-chapter .ec-btn--primary {
+  background: var(--ec-theme);
+  border-color: var(--ec-theme);
+  color: #08101f;
+}
+.echoes-chapter .ec-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+.echoes-chapter .ec-btn--ghost {
+  background: transparent;
+}
+
+/* ---------- scene ---------- */
+.echoes-chapter .ec-scene {
+  padding: clamp(16px, 4vw, 28px);
+  border: 1px solid var(--ec-border);
+  border-radius: var(--ec-radius);
+  background: var(--ec-surface);
+}
+.echoes-chapter .ec-step-label {
+  margin: 0;
+  color: var(--ec-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.echoes-chapter .ec-scene-title {
+  margin: 0.2rem 0 0.8rem;
+  font-size: clamp(1.25rem, 3.5vw, 1.6rem);
+  line-height: 1.25;
+}
+.echoes-chapter .ec-body {
+  max-width: 62ch;
+  margin: 0 0 0.9rem;
+}
+
+.echoes-chapter .ec-narration {
+  margin: 1.2rem 0;
+  padding: 0.9rem 1.1rem;
+  border-left: 4px solid var(--ec-theme);
+  border-radius: 0 10px 10px 0;
+  background: color-mix(in srgb, var(--ec-theme) 10%, transparent);
+}
+.echoes-chapter .ec-narration-label {
+  margin-bottom: 0.35rem;
+  color: var(--ec-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.echoes-chapter .ec-narration blockquote {
+  margin: 0;
+  font-style: italic;
+}
+.echoes-chapter .ec-narration blockquote p {
+  margin: 0;
+}
+
+.echoes-chapter .ec-badge {
+  display: inline-block;
+  margin: 0.4rem 0 0.8rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px dashed var(--ec-warn);
+  border-radius: 8px;
+  color: var(--ec-warn);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.echoes-chapter .ec-art {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 280px;
+  margin: 0.5rem 0 1rem;
+}
+.echoes-chapter .ec-art-caption {
+  margin: -0.5rem 0 1rem;
+  color: var(--ec-muted);
+  font-size: 0.8rem;
+}
+
+/* ---------- experiment blocks ---------- */
+.echoes-chapter .ec-panel {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--ec-border);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ec-bg) 55%, var(--ec-surface));
+}
+.echoes-chapter .ec-panel h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+.echoes-chapter .ec-panel fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.echoes-chapter .ec-panel legend {
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-weight: 600;
+}
+.echoes-chapter .ec-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+}
+.echoes-chapter .ec-range {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--ec-theme);
+}
+.echoes-chapter .ec-readout {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+.echoes-chapter .ec-formula {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: var(--ec-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.echoes-chapter .ec-choice-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.echoes-chapter .ec-choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  min-height: 44px;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--ec-border);
+  border-radius: 10px;
+  background: var(--ec-surface);
+  cursor: pointer;
+}
+.echoes-chapter .ec-choice:has(input:checked) {
+  border-color: var(--ec-theme);
+  background: color-mix(in srgb, var(--ec-theme) 12%, var(--ec-surface));
+}
+.echoes-chapter .ec-choice:has(input:focus-visible) {
+  outline: 3px solid var(--ec-accent);
+  outline-offset: 2px;
+}
+.echoes-chapter .ec-choice input {
+  flex: none;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.2rem;
+  accent-color: var(--ec-theme);
+}
+.echoes-chapter .ec-choice-text strong {
+  display: block;
+}
+.echoes-chapter .ec-choice-text span {
+  color: var(--ec-muted);
+  font-size: 0.92rem;
+}
+
+.echoes-chapter .ec-feedback {
+  margin: 0.6rem 0 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  background: var(--ec-bg);
+}
+.echoes-chapter .ec-feedback--ok {
+  border-left: 4px solid var(--ec-ok);
+}
+.echoes-chapter .ec-feedback--try {
+  border-left: 4px solid var(--ec-warn);
+}
+.echoes-chapter .ec-mark-ok {
+  color: var(--ec-ok);
+  font-weight: 700;
+}
+.echoes-chapter .ec-mark-bad {
+  color: var(--ec-bad);
+  font-weight: 700;
+}
+
+/* Apollo laser */
+.echoes-chapter .ec-laser-track {
+  stroke: var(--ec-border);
+  stroke-dasharray: 4 6;
+}
+.echoes-chapter .ec-pulse {
+  fill: #ff6b6b;
+  filter: drop-shadow(0 0 4px #ff6b6b);
+}
+.echoes-chapter .ec-pulse.is-firing {
+  animation: ec-roundtrip var(--ec-duration, 2.56s) linear forwards;
+}
+@keyframes ec-roundtrip {
+  0% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(var(--ec-travel, 240px));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Opportunity power meter */
+.echoes-chapter .ec-meter {
+  position: relative;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--ec-bg);
+  overflow: hidden;
+}
+.echoes-chapter .ec-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f6c453, #ffe08a);
+  transition: width 0.3s ease;
+}
+.echoes-chapter .ec-meter-fill.is-low {
+  background: linear-gradient(90deg, #c4574b, #e8846f);
+}
+.echoes-chapter .ec-meter-threshold {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--ec-text);
+}
+
+/* InSight traces */
+.echoes-chapter .ec-trace {
+  display: block;
+  width: 100%;
+  height: 70px;
+  margin-top: 0.4rem;
+  border-radius: 6px;
+  background: var(--ec-bg);
+}
+.echoes-chapter .ec-trace path {
+  fill: none;
+  stroke: var(--ec-theme);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+}
+.echoes-chapter .ec-trace--large {
+  height: 140px;
+}
+.echoes-chapter .ec-choice .ec-choice-text {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Voyager matching */
+.echoes-chapter .ec-match {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.echoes-chapter .ec-match li {
+  display: grid;
+  grid-template-columns: 1fr minmax(180px, 1fr);
+  align-items: center;
+  gap: 0.4rem 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--ec-border);
+  border-radius: 10px;
+}
+.echoes-chapter .ec-match select {
+  min-height: 44px;
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--ec-border);
+  border-radius: 8px;
+  background: var(--ec-bg);
+  color: var(--ec-text);
+  font: inherit;
+}
+.echoes-chapter .ec-match .ec-match-result {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+/* ---------- discovery ---------- */
+.echoes-chapter .ec-discovery {
+  margin-top: 1.2rem;
+  padding: 1.1rem;
+  border: 1px solid var(--ec-theme);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ec-theme) 8%, var(--ec-bg));
+}
+.echoes-chapter .ec-discovery-label {
+  margin: 0;
+  color: var(--ec-theme);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.echoes-chapter .ec-discovery-takeaway {
+  margin: 0.3rem 0 0.9rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.echoes-chapter .ec-facts {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 0.9rem;
+}
+.echoes-chapter .ec-facts dt {
+  color: var(--ec-muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.echoes-chapter .ec-facts dd {
+  margin: 0;
+}
+.echoes-chapter .ec-status {
+  display: inline-block;
+  padding: 0.05rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #08101f;
+}
+.echoes-chapter .ec-status--passive-still-useful {
+  background: var(--ec-accent);
+}
+.echoes-chapter .ec-status--mission-ended {
+  background: var(--ec-muted);
+}
+.echoes-chapter .ec-status--extended-mission {
+  background: var(--ec-ok);
+}
+.echoes-chapter .ec-complete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+.echoes-chapter .ec-complete .ec-feedback {
+  margin: 0;
+}
+.echoes-chapter .ec-question {
+  margin: 1rem 0 0;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: var(--ec-surface);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+/* ---------- timeline ---------- */
+.echoes-chapter .ec-timeline {
+  margin: 1rem 0;
+  padding: 0;
+  list-style: none;
+  border-left: 2px solid var(--ec-border);
+}
+.echoes-chapter .ec-timeline li {
+  position: relative;
+  margin: 0 0 0.7rem;
+  padding-left: 1rem;
+}
+.echoes-chapter .ec-timeline li::before {
+  content: '';
+  position: absolute;
+  top: 0.55em;
+  left: -6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ec-theme);
+}
+.echoes-chapter .ec-timeline-date {
+  display: block;
+  color: var(--ec-theme);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+/* ---------- nav + sources ---------- */
+.echoes-chapter .ec-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.8rem;
+  margin: 1.2rem 0 2rem;
+}
+.echoes-chapter .ec-nav-next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-left: auto;
+}
+.echoes-chapter .ec-hint {
+  margin: 0;
+  color: var(--ec-muted);
+  font-size: 0.88rem;
+}
+.echoes-chapter .ec-sources {
+  padding-top: 1rem;
+  border-top: 1px solid var(--ec-border);
+}
+.echoes-chapter .ec-sources-title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+.echoes-chapter .ec-sources ul {
+  margin: 0 0 0.8rem;
+  padding-left: 1.2rem;
+}
+.echoes-chapter .ec-sources li {
+  margin-bottom: 0.35rem;
+}
+
+/* ---------- small screens ---------- */
+@media (max-width: 520px) {
+  .echoes-chapter .ec-match li {
+    grid-template-columns: 1fr;
+  }
+  .echoes-chapter .ec-nav .ec-btn {
+    flex: 1 1 auto;
+  }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .echoes-chapter *,
+  .echoes-chapter *::before,
+  .echoes-chapter *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
