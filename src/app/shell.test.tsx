@@ -16,12 +16,13 @@ async function visit(hash: string) {
 }
 
 describe('museum shell', () => {
-  it('starts Apollo in one click and does not award missing-chapter progress', async () => {
+  it('starts exploring or a chapter in one click and does not award progress on visit', async () => {
     render(<App />);
-    const begin = screen.getByRole('link', { name: 'Begin the Journey' });
+    expect(screen.getByRole('link', { name: 'Begin Exploring' }).getAttribute('href')).toBe('#/atlas');
+    const begin = screen.getByRole('link', { name: 'Or start with the Moon' });
     expect(begin.getAttribute('href')).toBe('#/chapter/apollo11');
     await visit(begin.getAttribute('href')!);
-    expect(screen.getByRole('heading', { name: 'Exhibit is being prepared.' })).toBeTruthy();
+    expect(await screen.findByRole('heading', { name: 'The Mirror That Never Went Silent' })).toBeTruthy();
     expect(document.title).toBe('Apollo 11 — ECHOES');
     expect(document.activeElement?.id).toBe('main-content');
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY) || '{"completed":[]}').completed).toEqual([]);
@@ -31,10 +32,14 @@ describe('museum shell', () => {
     await visit('#/atlas');
     const chart = screen.getByRole('navigation', { name: 'Artifact navigation' });
     expect(within(chart).getAllByRole('link')).toHaveLength(4);
+    const titles: Record<string, string> = {
+      apollo11: 'The Mirror That Never Went Silent', opportunity: 'The Rover That Outlived Its Mission',
+      insight: 'Listening to the Heart of Mars', voyager: 'Beyond the Last Planet',
+    };
     for (const id of ['apollo11', 'opportunity', 'insight', 'voyager']) {
       expect(chart.querySelector(`a[href="#/chapter/${id}"]`)).toBeTruthy();
       await visit(`#/chapter/${id}`);
-      expect(screen.getByRole('heading', { name: 'Exhibit is being prepared.' })).toBeTruthy();
+      expect(await screen.findByRole('heading', { name: titles[id] })).toBeTruthy();
     }
     await visit('#/atlas');
     expect(screen.getByRole('heading', { name: /The discovery atlas/ })).toBeTruthy();

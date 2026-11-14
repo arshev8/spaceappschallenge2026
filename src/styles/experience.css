@@ -1,0 +1,93 @@
+/*
+ * ECHOES experience layer: games-era polish for the landing page, atlas, journal and chapter host.
+ * Loaded after global.css and before accessibility.css (which can override it).
+ */
+
+/* ---------- header ---------- */
+.site-header { gap: 24px; }
+.site-header nav a { font-size: 0.875rem; }
+
+/* ---------- landing hero ---------- */
+.button-hero { min-height: 54px; padding-inline: 28px; font-size: 1rem; box-shadow: 0 0 0 0 #8ee7dd55; }
+.button-hero:hover { box-shadow: 0 10px 40px -10px #8ee7dd99; }
+.hero-description { font-size: 1.0625rem; max-width: 30rem; }
+.hero-illustration .scene-moon { animation: echoes-float 9s ease-in-out infinite; transform-origin: center; }
+.hero-illustration .scene-mars { animation: echoes-float 12s ease-in-out -4s infinite; }
+@keyframes echoes-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+/* ---------- how it works ---------- */
+.how-it-works {
+  margin: 0 5.5% 34px; padding: 40px 0 36px; border-top: 1px solid var(--color-border);
+  display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 2fr); gap: 28px 48px;
+}
+.how-intro h2 { margin-top: 10px; font-size: clamp(1.6rem, 2.6vw, 2.1rem); font-weight: 400; line-height: 1.2; letter-spacing: -.03em; }
+.how-intro h2 span { color: var(--color-muted); }
+.how-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+.how-steps li { padding: 20px; border: 1px solid var(--color-border); border-radius: 6px; background: linear-gradient(160deg, #ffffff05, transparent); }
+.how-num { display: block; color: var(--color-accent); font: 0.8125rem var(--font-mono); letter-spacing: .1em; }
+.how-steps h3 { margin: 10px 0 8px !important; font-size: 1.15rem; font-weight: 500; }
+.how-steps p { color: var(--color-muted); font-size: 0.9375rem; line-height: 1.7; }
+.how-note { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; color: var(--color-muted); font-size: 0.9375rem; }
+.how-note svg { color: var(--color-accent); flex-shrink: 0; }
+.how-note strong { color: var(--color-text); font-weight: 500; }
+
+/* ---------- mission previews ---------- */
+.preview-card { transition: background .2s, transform .25s ease; }
+.preview-card::after { content: ''; position: absolute; inset: auto 24px 0; height: 2px; background: var(--art-color, var(--color-accent)); transform: scaleX(0); transform-origin: left; transition: transform .3s ease; }
+.preview-card:hover::after, .preview-card:focus-visible::after { transform: scaleX(1); }
+
+/* ---------- atlas ---------- */
+.atlas-node { transition: border-color .2s, transform .2s, box-shadow .2s; }
+.atlas-node:hover, .atlas-node:focus-visible { box-shadow: 0 12px 40px -18px #8ee7dd88; }
+.atlas-index { display: block; }
+.atlas-region { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 45px; margin-bottom: 18px; }
+.atlas-region-title {
+  grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; margin: 18px 0 4px !important;
+  font-size: 1.35rem; font-weight: 400; letter-spacing: -.02em;
+}
+.atlas-region-title > span { color: var(--color-accent); }
+.region-mars .atlas-region-title > span { color: var(--color-mars); }
+.region-deep .atlas-region-title > span { color: #dac699; }
+.atlas-region-title small { color: var(--color-muted); font: 0.8125rem var(--font-mono); letter-spacing: .06em; }
+.atlas-game { display: flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--color-text) !important; font-size: 0.875rem !important; }
+.atlas-game svg { color: var(--art-color, var(--color-accent)); flex-shrink: 0; }
+
+/* ---------- journal ---------- */
+.journal-grid { list-style: none; padding: 0; }
+.journal-card { position: relative; }
+.journal-card.is-locked > .mission-art { opacity: .55; filter: grayscale(.4); }
+.journal-card.is-collected { background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--art-color) 12%, transparent), transparent 60%), linear-gradient(155deg, #ffffff04, transparent); }
+.journal-card.is-new { border-color: var(--color-accent); box-shadow: 0 0 0 3px #8ee7dd33, 0 20px 60px -30px #8ee7dd; animation: echoes-card-reveal .8s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes echoes-card-reveal { 0% { opacity: 0; transform: translateY(18px) rotateX(10deg) scale(.97); } 100% { opacity: 1; transform: none; } }
+.journal-card h3:focus { outline: none; }
+.journal-card h3:focus-visible { outline: 3px solid var(--color-accent); outline-offset: 4px; }
+.new-badge { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px !important; padding: 4px 10px; border-radius: 999px; background: var(--color-accent); color: #0b1a20; font: 600 0.8125rem/1.4 var(--font-body); }
+.card-facts { display: grid; gap: 12px; margin: 0 0 18px; }
+.card-facts dt { color: var(--art-color, var(--color-accent)); font: 0.75rem/1.5 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.card-facts dd { margin: 2px 0 0; color: var(--color-muted); font-size: 0.9375rem; line-height: 1.65; }
+.card-teaser { margin-bottom: 20px !important; color: var(--color-muted); font-size: 0.9375rem; line-height: 1.7; }
+.card-teaser-label { display: block; margin-bottom: 4px; color: var(--color-text); font: 0.75rem/1.5 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
+.collection-label svg { flex-shrink: 0; }
+.epilogue-card.is-new { border-color: #dac699; box-shadow: 0 0 0 3px #dac69933; animation: echoes-card-reveal .8s cubic-bezier(.2,.8,.2,1) both; }
+.epilogue-card h2:focus { outline: none; }
+
+/* ---------- chapter host ---------- */
+.chapter-heading { padding-bottom: 18px; }
+.chapter-heading h1 { font-size: clamp(2rem, 3.4vw, 2.8rem); }
+.chapter-source { margin-top: 8px; }
+
+@media (max-width: 1100px) {
+  .how-it-works { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .how-it-works { margin-inline: 6%; }
+  .how-steps { grid-template-columns: 1fr; }
+  .atlas-region { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-illustration .scene-moon, .hero-illustration .scene-mars { animation: none; }
+}
+html[data-simplified] .how-steps li { background: none; }
+html[data-high-contrast] .how-steps li { border: 2px solid #fff; background: #000; }
+html[data-high-contrast] .new-badge { background: #ffe600; color: #000; }
+html[data-high-contrast] .card-facts dd, html[data-high-contrast] .card-teaser { color: #fff; }

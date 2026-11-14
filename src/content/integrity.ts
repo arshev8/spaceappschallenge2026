@@ -11,16 +11,22 @@ import {
   type SourceRef,
 } from './missions.ts';
 import {
-  APOLLO_PUZZLE_CHOICES,
+  APOLLO_TARGETS,
   AVERAGE_EARTH_MOON_KM,
   DUST_SCALE,
   EVENT_CASE_ID,
+  FORMULA_CHOICES,
   GAP_CHOICES,
+  GOLDEN_RECORD_ITEMS,
+  LAYER_CHOICES,
   REFERENCE_MATCHES,
-  SUPPORTING_EVIDENCE_IDS,
+  REFERENCE_VERDICTS,
+  SAMPLES,
   apolloGatePassed,
-  evaluateEvidence,
+  computeWithFormula,
   evaluateMatches,
+  evaluateSample,
+  evidenceSolved,
   insightGatePassed,
   opportunityGatePassed,
   roundTripSeconds,
@@ -33,14 +39,15 @@ export type CheckResult = { name: string; ok: boolean; detail?: string };
 /** Reference solutions run through the SAME evaluators the chapters use. */
 export const GATE_SOLVERS: Record<GateId, () => boolean> = {
   'apollo-ranging': () => {
-    const correct = APOLLO_PUZZLE_CHOICES.find((c) => c.id === 'correct');
-    return correct !== undefined && apolloGatePassed(1, correct.id);
+    const target = APOLLO_TARGETS.find((c) => c.correct);
+    const formula = FORMULA_CHOICES.find((c) => c.correct);
+    return Boolean(target && formula) && apolloGatePassed(target!.id, 1, formula!.id);
   },
-  'opportunity-evidence': () =>
-    opportunityGatePassed(evaluateEvidence(SUPPORTING_EVIDENCE_IDS).correct, DUST_SCALE.max),
+  'opportunity-evidence': () => opportunityGatePassed(evidenceSolved(REFERENCE_VERDICTS), DUST_SCALE.max),
   'insight-seismogram': () => {
     const gap = GAP_CHOICES.find((g) => g.correct);
-    return gap !== undefined && insightGatePassed(EVENT_CASE_ID, gap.id);
+    const layer = LAYER_CHOICES.find((g) => g.correct);
+    return Boolean(gap && layer) && insightGatePassed(EVENT_CASE_ID, gap!.id, layer!.id);
   },
   'voyager-matching': () => evaluateMatches(REFERENCE_MATCHES).correct,
 };
@@ -122,6 +129,21 @@ export function runIntegrityChecks(): CheckResult[] {
     add(`synthetic waveform ${kind} is deterministic and bounded`,
       w.length > 0 && w.every((v) => v >= -1 && v <= 1) && JSON.stringify(w) === JSON.stringify(syntheticWaveform(kind)));
   }
+
+  // Game-design checks: every choice list has exactly one right answer and every wrong answer teaches.
+  for (const [name, list] of [['apollo targets', APOLLO_TARGETS], ['apollo formulas', FORMULA_CHOICES], ['insight gap', GAP_CHOICES], ['insight layers', LAYER_CHOICES]] as const) {
+    add(`${name}: exactly one correct choice`, list.filter((c) => c.correct).length === 1);
+    add(`${name}: every choice has feedback`, list.every((c) => c.feedback.length > 20));
+  }
+  const ct2 = computeWithFormula('ct2', 2.564);
+  add('formula ÷2 recovers ~384,400 km from 2.564 s', ct2 !== null && Math.abs(ct2 - AVERAGE_EARTH_MOON_KM) < 200);
+  add('every Opportunity sample has a resolvable source', SAMPLES.every((s) => Boolean(getSource(s.sourceId))));
+  add('Opportunity has water and non-water samples', SAMPLES.some((s) => s.verdict === 'water') && SAMPLES.some((s) => s.verdict === 'not-clear'));
+  add('wrong verdicts return a hint (never a dead end)', SAMPLES.every((s) => {
+    const wrong = evaluateSample(s.id, s.verdict === 'water' ? 'not-clear' : 'water');
+    return !wrong.correct && wrong.message === s.hint && s.hint.length > 10;
+  }));
+  add('Golden Record items present', GOLDEN_RECORD_ITEMS.length >= 4);
 
   return results;
 }

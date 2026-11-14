@@ -91,6 +91,12 @@ export const SOURCES = {
     publisher: 'NASA Science (Feb. 13, 2019)',
     url: 'https://science.nasa.gov/missions/mer/nasas-opportunity-rover-mission-on-mars-comes-to-end/',
   },
+  jpl2004: {
+    id: 'jpl2004',
+    label: 'Opportunity Rover Finds Strong Evidence Meridiani Planum Was Wet',
+    publisher: 'NASA JPL (Mar. 2, 2004)',
+    url: 'https://www.jpl.nasa.gov/news/opportunity-rover-finds-strong-evidence-meridiani-planum-was-wet',
+  },
   marsFacts: {
     id: 'marsFacts',
     label: 'Mars: Facts',
@@ -120,6 +126,12 @@ export const SOURCES = {
     label: 'Voyager 1',
     publisher: 'NASA Science',
     url: 'https://science.nasa.gov/mission/voyager/voyager-1/',
+  },
+  goldenRecord: {
+    id: 'goldenRecord',
+    label: 'Golden Record Contents',
+    publisher: 'NASA Science',
+    url: 'https://science.nasa.gov/mission/voyager/golden-record-contents/',
   },
   voyagerLecp: {
     id: 'voyagerLecp',
@@ -239,6 +251,16 @@ export const MISSIONS: Record<ChapterId, MissionRecord> = {
         sourceIds: ['opportunityEnd'],
       },
       {
+        id: 'opp-jarosite',
+        text: 'In 2004, instruments found sulfate salts including jarosite, a hydrated iron sulfate mineral, and the team concluded liquid water once flowed through the rocks.',
+        sourceIds: ['jpl2004'],
+      },
+      {
+        id: 'opp-spherules',
+        text: 'BB-sized round particles in the outcrop could, according to NASA in 2004, form in several ways — volcanic, impact or minerals coming out of solution.',
+        sourceIds: ['jpl2004'],
+      },
+      {
         id: 'opp-endeavour',
         text: 'At Endeavour Crater it found strong indications of the action of ancient water.',
         sourceIds: ['opportunityEnd'],
@@ -349,6 +371,11 @@ export const MISSIONS: Record<ChapterId, MissionRecord> = {
         id: 'voy-power',
         text: 'Voyager 1 is running low on power, losing about 4 watts each year; after April 2026 it has two operating science instruments.',
         sourceIds: ['voyagerLecp'],
+      },
+      {
+        id: 'voy-golden-record',
+        text: 'Both Voyagers carry a 12-inch gold-plated record with 115 images, greetings in fifty-five languages, natural sounds and 90 minutes of music.',
+        sourceIds: ['goldenRecord'],
       },
       {
         id: 'voy-light-day',

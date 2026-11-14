@@ -22,9 +22,22 @@ npm run lint
 npm test
 ```
 
-`dist/` is a static site. Upload its contents to Netlify, Vercel, or GitHub Pages. Relative asset paths and hash routes support a repository subdirectory without a server rewrite. This branch implements the UI shell; missing chapter modules intentionally show a preparation state. That state does not award discoveries.
+`dist/` is a static site. Upload its contents to Netlify, Vercel, or GitHub Pages. Relative asset paths and hash routes support a repository subdirectory without a server rewrite. If a chapter module is ever missing, the shell shows a preparation state that does not award discoveries.
 
-The repository initially contained project instructions only. With authorization to complete setup, the React/TypeScript/Vite scaffold was created on `feat/atlas-ui`, keeping `main` untouched. Integrate that tooling before expecting the separate content branch to build in this checkout.
+Content integrity checks (sources, word limits, game completability) also run standalone with Node 22.18+: `node src/content/integrity.check.mjs`.
+
+## Mini-games
+
+Each exhibit follows the same five stages: **mission briefing → the science → interactive experiment → real NASA connection → discovery card**. Wrong answers always explain why and give a hint; there are no timers, scores to lose or rankings.
+
+| Exhibit | Game | What the player does | Labelled as |
+|---|---|---|---|
+| Apollo 11 | Measure the Distance to the Moon | Aim the telescope at the reflector, fire a laser pulse, time the round trip, choose the calculation (`distance = c × t ÷ 2`). Measurement log table and a text-only (non-animated) view. | Educational calculation, not live laser data |
+| Opportunity | Follow the Water | Inspect five samples from a map or a structured evidence list, read the rover's sourced observation, decide whether each supports ancient water, compare on an evidence board; then a dust-vs-sunlight model. | Real findings with sources; dust model is conceptual, not telemetry |
+| InSight | Marsquake Investigator | Pick the likely marsquake among three seismograms (also described in words and in a data table), reason about P/S wave arrivals, explore crust/mantle/core. | Synthetic seismograms, not NASA recordings |
+| Voyager 1 (epilogue) | Match the Machines + Golden Record | Match four machines to their status; explore verified Golden Record facts. | Statuses as of November 2026 |
+
+Game logic is pure TypeScript in `src/content/experiments.ts`; the chapters in `src/chapters/` render it.
 
 ## Architecture and integration
 
@@ -88,13 +101,21 @@ Every mission entry and journal card links to its factual source:
 
 All planets, orbital paths, spacecraft schematics, iconography, and the ECHOES wordmark are original CSS/SVG illustrations created for this project with AI assistance. They are not NASA images, engineering diagrams, geodetic maps, spacecraft positions, or telemetry. The atlas is illustrative and not to scale. No external image, font, audio, or icon asset is used. No NASA logo is used.
 
-Detailed scientific references and review records are owned by the content branch in `docs/SCIENCE_SOURCES.md` and `docs/CONTENT_REVIEW.md` when integrated. Chapter experiments must label synthetic signals and conceptual models clearly.
+Detailed scientific references and review records live in `docs/SCIENCE_SOURCES.md` (claim → source matrix) and `docs/CONTENT_REVIEW.md` (approximations, illustrative vs real data, release checkpoints). Additional sources used by the games include the [JPL 2004 Opportunity release](https://www.jpl.nasa.gov/news/opportunity-rover-finds-strong-evidence-meridiani-planum-was-wet) and [NASA's Golden Record contents](https://science.nasa.gov/mission/voyager/golden-record-contents/).
 
 ## Accessibility and verification
 
-The shell uses semantic links/buttons, a skip link, visible keyboard focus, route-change focus management, descriptive titles, labelled progress, non-color status text, large touch controls, and a native confirmation dialog. It requires no audio. Animations and transitions are disabled for reduced motion; chapter authors must honor that preference too. System fonts avoid external font requests.
+A **Display & accessibility** button in the header of every page opens a native modal dialog (focus moves in, Escape closes, focus returns to the button). Settings apply instantly to every page, including lazy-loaded chapters, are saved in `localStorage` (`echoes.preferences.v1`) and can be reset to default:
 
-The UI handoff passed `npm run build`, `npm run lint`, and all 34 tests. Browser QA covered desktop and 360px layouts, keyboard activation, route focus, chapter reload, browser back, and missing-module views; no console warnings or errors were observed. Automated tests cover hash parsing, invalid routes, deep links, storage corruption, duplicate completions, denied storage, cross-tab changes, journal counts, confirmation, and missing chapters. Completion boundary tests use a test-only mock inside `src/app/`; actual chapter experiments still require QA after integration. Run the commands above after merging content and review any failures in the owning branch.
+- **Text size**: Normal, Large (~20% larger), Extra large (~40% larger). All type uses `rem`; at larger sizes the atlas switches to a list and rigid rows wrap.
+- **High contrast**: pure black background, brighter text, 2px outlines and a yellow focus ring.
+- **Reduce motion**: disables decorative and transition animation; the operating-system `prefers-reduced-motion` setting is always respected as well. The laser experiment then resolves instantly and stays fully explained in text.
+- **Simplified interface**: hides decorative artwork and starfields, uses plain backgrounds, enlarges reading text and actions, and shows the atlas as a list.
+- **Reading-friendly text**: a plain, open system typeface with extra letter, word and line spacing. Some readers find this easier; it is not presented as a treatment for dyslexia.
+
+Built into the components: semantic landmarks and headings, a skip link, visible focus, route and step focus management, live-region announcements for results and setting changes, feedback that never relies on color alone (icon + word + explanation), minimum 44px touch targets, keyboard-operable radio groups, switches, selects and buttons for every game step, list/table alternatives to the map and graphs, no drag-and-drop, no time limits, no flashing and no audio.
+
+Automated checks: `npm run build`, `npm run lint`, `npm test` (Vitest: routing, storage, preferences, settings dialog, game logic, integrity checks and full keyboard-style play-throughs of all four chapters). Browser QA (headless Chromium) also played every game end to end, checked keyboard-only paths, settings persistence, and no horizontal overflow at 360px with extra-large text, high contrast, simplified and reading-font combinations. Automated checks do not guarantee WCAG conformance; test with real assistive technology before submission.
 
 Manual smoke-test checklist:
 
@@ -102,10 +123,10 @@ Manual smoke-test checklist:
 2. Mobile: check at 360px and 390px; verify readable text, touch targets, no horizontal overflow, and that all four nodes remain reachable.
 3. Hash links: load each chapter URL directly, refresh, and use browser back/forward. Check an unknown URL returns a useful recovery page.
 4. Keyboard: Tab through header, atlas, and journal; use Enter to open links. Check visible focus and focus moving to main content on route changes. Activate the skip link.
-5. Before content integration: every chapter shows preparation; no discovery is awarded. After integration: check loading, each completed experiment, journal redirect, replay, and reload persistence.
+5. Play each experiment to the end; check the journal redirect, the “New discovery unlocked” card, replay and reload persistence.
 6. With three core completions: confirm 3/3. Voyager alone must remain 0/3. Cancel reset once; confirm it once; check reload.
 7. Block storage and preload malformed storage: the shell still works with a clear session-only notice when storage is unavailable.
-8. Enable reduced motion and high contrast. Check reset dialog focus, Escape cancellation, and return focus with an actual browser and assistive technology.
+8. Open Display & accessibility: try every setting, reload to confirm persistence, reset to default. Check dialog focus, Escape and return focus with an actual browser and assistive technology.
 
 ## Screenshot and demo instructions
 

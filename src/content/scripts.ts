@@ -19,6 +19,15 @@ export type Scene = {
   gate?: GateId;
 };
 
+/** Each scene kind maps to a stage of the ECHOES game structure. */
+export const STAGE_LABELS: Record<SceneKind, string> = {
+  hook: 'Mission briefing',
+  problem: 'The science',
+  experiment: 'Interactive experiment',
+  reveal: 'Real NASA connection',
+  discovery: 'Discovery',
+};
+
 export const IMAGINED_NARRATION_LABEL = 'Imagined narration based on NASA mission records';
 
 export const MAX_SCENE_WORDS = 80;
@@ -48,9 +57,9 @@ export const SCRIPTS: Record<ChapterId, Scene[]> = {
     {
       id: 'experiment',
       kind: 'experiment',
-      title: 'Experiment: time the light',
+      title: 'Measure the distance to the Moon',
       body: [
-        'Light is fast — about 300,000 km every second — but not instant. Choose a distance, fire a pulse and watch how long the round trip takes. Then solve the puzzle.',
+        'You are running a laser ranging station. Light is fast — about 300,000 km every second — but not instant. Aim at the reflector, fire a pulse, time its round trip, then turn that time into a distance.',
       ],
       gate: 'apollo-ranging',
     },
@@ -98,9 +107,9 @@ export const SCRIPTS: Record<ChapterId, Scene[]> = {
     {
       id: 'experiment',
       kind: 'experiment',
-      title: 'Experiment: be the geologist',
+      title: 'Follow the water',
       body: [
-        'First, choose every clue that supports the idea of ancient water. Then explore why sunlight mattered so much to a solar-powered rover.',
+        'You are on the rover’s science team. Inspect each sample on the map, read what Opportunity observed, then decide: does it support the idea of ancient water? Afterwards, find out why sunlight mattered so much.',
       ],
       gate: 'opportunity-evidence',
     },
@@ -149,9 +158,9 @@ export const SCRIPTS: Record<ChapterId, Scene[]> = {
     {
       id: 'experiment',
       kind: 'experiment',
-      title: 'Experiment: read the wiggles',
+      title: 'Marsquake investigator',
       body: [
-        'These three traces are synthetic illustrations made for this lesson — not real NASA recordings. Which one looks most like a marsquake or impact? Then answer one question about its two wave arrivals.',
+        'A seismometer measures tiny movements of the ground. The three traces below are synthetic examples made for this lesson, not real NASA recordings. Find the likely marsquake, then use its waves to reason about the hidden inside of Mars.',
       ],
       gate: 'insight-seismogram',
     },
@@ -200,6 +209,15 @@ export const SCRIPTS: Record<ChapterId, Scene[]> = {
       title: 'Match each machine to its status',
       body: ['Four machines, four different stories. Choose the status that fits each one, then check your answers.'],
       gate: 'voyager-matching',
+    },
+    {
+      id: 'golden-record',
+      kind: 'reveal',
+      title: 'A message on board',
+      body: [
+        'Voyager 1 carries more than instruments. Both Voyagers hold a 12-inch gold-plated record: a message from Earth, sealed in a protective aluminum jacket.',
+        'Open each part of the record below to see what humanity chose to send.',
+      ],
     },
     {
       id: 'discovery',

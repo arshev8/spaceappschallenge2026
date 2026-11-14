@@ -5,6 +5,18 @@ import { OrbitScene } from './OrbitScene';
 import { ProgressMeter } from './ProgressMeter';
 import { StatusBadge } from './StatusBadge';
 
+const REGIONS: { id: string; name: string; note: string; glyph: string; ids: ChapterId[] }[] = [
+  { id: 'moon', name: 'The Moon', note: 'About 384,400 km away, on average', glyph: '◐', ids: ['apollo11'] },
+  { id: 'mars', name: 'Mars', note: 'Two machines, two kinds of clues', glyph: '●', ids: ['opportunity', 'insight'] },
+  { id: 'deep', name: 'Deep space', note: 'Still traveling', glyph: '✦', ids: ['voyager'] },
+];
+const GAMES: Record<ChapterId, string> = {
+  apollo11: 'Measure the distance to the Moon',
+  opportunity: 'Follow the water',
+  insight: 'Marsquake investigator',
+  voyager: 'Match the machines + Golden Record',
+};
+
 export default function Atlas({ completed }: { completed: ChapterId[] }) {
   const count = coreMissions.filter(mission => completed.includes(mission.id)).length;
   return <section className="atlas-page" aria-labelledby="atlas-title">
@@ -22,9 +34,12 @@ export default function Atlas({ completed }: { completed: ChapterId[] }) {
     </div>
     <div className="atlas-reading"><p><Icon name="compass" size={18} />There’s no wrong place to begin. Every exhibit is open to explore.</p><span>Mission states referenced November 2026 · not live telemetry</span></div>
     <div className="atlas-index" aria-label="Exhibit details and sources">
-      {missions.map(mission => <article className={`atlas-entry art-${mission.id}`} key={mission.id}>
-        <MissionArt id={mission.id} /><div><p className="eyebrow">{mission.epilogue ? 'BEYOND THE LAST PLANET' : `DISCOVERY ${mission.number}`}</p><h2><a href={`#/chapter/${mission.id}`}>{mission.name}<Icon name="arrow" size={18} /></a></h2><p>{mission.summary}</p><a className="source-link" href={mission.source} target="_blank" rel="noreferrer">{mission.sourceName}<Icon name="external" size={12} /></a></div>
-      </article>)}
+      {REGIONS.map(region => <section className={`atlas-region region-${region.id}`} key={region.id} aria-labelledby={`region-${region.id}`}>
+        <h2 id={`region-${region.id}`} className="atlas-region-title"><span aria-hidden="true">{region.glyph}</span> {region.name}<small>{region.note}</small></h2>
+        {missions.filter(m => region.ids.includes(m.id)).map(mission => <article className={`atlas-entry art-${mission.id}`} key={mission.id}>
+          <MissionArt id={mission.id} /><div><p className="eyebrow">{mission.epilogue ? 'BEYOND THE LAST PLANET' : `DISCOVERY ${mission.number}`}{completed.includes(mission.id) ? ' · COLLECTED ✓' : ''}</p><h3><a href={`#/chapter/${mission.id}`}>{mission.name}<Icon name="arrow" size={18} /></a></h3><p>{mission.summary}</p><p className="atlas-game"><Icon name="spark" size={14} />Experiment: {GAMES[mission.id]}</p><a className="source-link" href={mission.source} target="_blank" rel="noreferrer">{mission.sourceName}<Icon name="external" size={12} /><span className="sr-only">(opens in a new tab)</span></a></div>
+        </article>)}
+      </section>)}
     </div>
   </section>;
 }
