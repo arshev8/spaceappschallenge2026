@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react';
+import { useT } from '../../i18n';
 
 /** One numbered stage of a mini-game. Locked stages are inert until the previous step is done. */
 export function Stage({
@@ -17,14 +18,15 @@ export function Stage({
   children: ReactNode;
 }) {
   const id = useId();
+  const { t } = useT();
   return (
     <section className={`ec-stage${done ? ' is-done' : ''}${locked ? ' is-locked' : ''}`} aria-labelledby={id}>
       <div className="ec-stage-head">
         <span className="ec-stage-num" aria-hidden="true">{done ? '✓' : number}</span>
         <h4 id={id}>
-          <span className="ec-visually-hidden">Step {number}: </span>
+          <span className="ec-visually-hidden">{t('game.stepN', { n: number })}</span>
           {title}
-          {done && <span className="ec-stage-done"> · Done</span>}
+          {done && <span className="ec-stage-done">{t('game.done')}</span>}
         </h4>
       </div>
       {locked && lockedText && <p className="ec-locked-note">{lockedText}</p>}
@@ -80,14 +82,15 @@ export function ChoiceList({
  * The live region is always mounted so screen readers announce changes; pass
  * falsy children to show nothing.
  */
-export function Feedback({ ok, children, okTag = 'Correct', tryTag = 'Not yet — try again' }: { ok: boolean; children?: ReactNode; okTag?: string; tryTag?: string }) {
+export function Feedback({ ok, children, okTag, tryTag }: { ok: boolean; children?: ReactNode; okTag?: string; tryTag?: string }) {
+  const { t } = useT();
   return (
     <div aria-live="polite" className="ec-feedback-wrap">
       {children ? (
         <p className={`ec-feedback ${ok ? 'ec-feedback--ok' : 'ec-feedback--try'}`}>
           <span className="ec-feedback-tag">
             <span aria-hidden="true">{ok ? '✓ ' : '↻ '}</span>
-            {ok ? okTag : tryTag}
+            {ok ? okTag ?? t('game.correct') : tryTag ?? t('game.tryAgain')}
           </span>
           {children}
         </p>

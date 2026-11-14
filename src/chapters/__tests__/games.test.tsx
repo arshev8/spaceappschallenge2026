@@ -1,9 +1,9 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import Apollo11 from './apollo11';
-import Opportunity from './opportunity';
-import InSight from './insight';
-import Voyager from './voyager';
+import Apollo11 from '../apollo11';
+import Opportunity from '../opportunity';
+import InSight from '../insight';
+import Voyager from '../voyager';
 
 beforeEach(() => {
   // Reduced motion makes the laser pulse resolve instantly.

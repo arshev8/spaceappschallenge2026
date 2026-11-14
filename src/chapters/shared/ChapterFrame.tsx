@@ -1,13 +1,8 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
-import {
-  MISSIONS,
-  STATUS_LABELS,
-  chapterSources,
-  getSource,
-  type ChapterId,
-  type ChronologyEntry,
-} from '../../content/missions.ts';
-import { IMAGINED_NARRATION_LABEL, STAGE_LABELS, type Scene } from '../../content/scripts.ts';
+import { chapterSources, getSource, type ChapterId, type ChronologyEntry } from '../../content/missions.ts';
+import type { Scene } from '../../content/scripts.ts';
+import { useContent } from '../../content/useContent.ts';
+import { formatIsoDate, useT, type MessageKey } from '../../i18n';
 import { useCompleteOnce, type ChapterFlow } from './useChapterFlow.ts';
 import '../chapters.css';
 
@@ -28,34 +23,26 @@ type FrameProps = {
   gateHint?: string;
 };
 
-function nextLabel(flow: ChapterFlow): string {
+function nextLabel(flow: ChapterFlow): MessageKey {
   const upcoming = flow.scenes[flow.index + 1];
-  if (!upcoming) return 'Next';
-  if (upcoming.kind === 'experiment') return 'Start the experiment';
-  if (upcoming.kind === 'discovery') return 'Reveal the discovery';
-  if (flow.scene.kind === 'experiment') return 'See the real science';
-  return 'Next';
+  if (!upcoming) return 'ch.next';
+  if (upcoming.kind === 'experiment') return 'ch.startExperiment';
+  if (upcoming.kind === 'discovery') return 'ch.reveal';
+  if (flow.scene.kind === 'experiment') return 'ch.realScience';
+  return 'ch.next';
 }
 
-export function ChapterFrame({
-  id,
-  kicker,
-  theme,
-  flow,
-  onBack,
-  onComplete,
-  visual,
-  children,
-  discoveryExtra,
-  gateHint = 'Finish the experiment to continue.',
-}: FrameProps) {
-  const mission = MISSIONS[id];
+export function ChapterFrame({ id, kicker, theme, flow, onBack, onComplete, visual, children, discoveryExtra, gateHint }: FrameProps) {
+  const { t, locale } = useT();
+  const content = useContent();
+  const mission = content.missions[id];
   const titleId = useId();
   const sceneHeadingRef = useRef<HTMLHeadingElement>(null);
   const firstRender = useRef(true);
   const [completed, complete] = useCompleteOnce(onComplete);
   const { scene, scenes, index } = flow;
   const story = scene.kind !== 'experiment' && scene.kind !== 'discovery' && Boolean(visual);
+  const checked = formatIsoDate(mission.statusAsOf, locale);
 
   // Move focus to the new scene heading when the learner changes step (not on mount).
   useEffect(() => {
@@ -71,18 +58,17 @@ export function ChapterFrame({
     <article className={`echoes-chapter ec-theme-${theme}`} aria-labelledby={titleId}>
       <header className="ec-header">
         <p className="ec-kicker">{kicker}</p>
-        <h2 id={titleId} className="ec-title">
-          {mission.chapterTitle}
-        </h2>
-        <nav aria-label="Chapter steps">
+        <h2 id={titleId} className="ec-title">{mission.chapterTitle}</h2>
+        <nav aria-label={t('ch.steps')}>
           <ol className="ec-stepper">
             {scenes.map((s, i) => {
               const state = i === index ? 'is-current' : i <= flow.maxReached ? 'is-done' : 'is-locked';
+              const aria = t('ch.stepAria', { n: i + 1, total: scenes.length, title: s.title });
               const label = (
                 <>
                   <span className="ec-step-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
                   <span className="ec-step-text">
-                    <span className="ec-step-stage">{STAGE_LABELS[s.kind]}</span>
+                    <span className="ec-step-stage">{content.stageLabels[s.kind]}</span>
                     <span className="ec-step-title">{s.title}</span>
                   </span>
                 </>
@@ -90,18 +76,11 @@ export function ChapterFrame({
               return (
                 <li key={s.id} className={state}>
                   {i <= flow.maxReached ? (
-                    <button
-                      type="button"
-                      onClick={() => flow.goTo(i)}
-                      aria-current={i === index ? 'step' : undefined}
-                      aria-label={`Step ${i + 1} of ${scenes.length}: ${s.title}${i === index ? ' (current)' : ''}`}
-                    >
+                    <button type="button" onClick={() => flow.goTo(i)} aria-current={i === index ? 'step' : undefined} aria-label={aria + (i === index ? t('ch.current') : '')}>
                       {label}
                     </button>
                   ) : (
-                    <span className="ec-step-locked" aria-label={`Step ${i + 1} of ${scenes.length}: ${s.title} (locked)`}>
-                      {label}
-                    </span>
+                    <span className="ec-step-locked" aria-label={aria + t('ch.locked')}>{label}</span>
                   )}
                 </li>
               );
@@ -114,13 +93,11 @@ export function ChapterFrame({
         <div className={story ? 'ec-scene-grid' : undefined}>
           <div className="ec-scene-text">
             <p className="ec-step-label">
-              <span>{STAGE_LABELS[scene.kind]}</span>
+              <span>{content.stageLabels[scene.kind]}</span>
               <span aria-hidden="true"> · </span>
-              <span>Step {index + 1} of {scenes.length}</span>
+              <span>{t('ch.stepOf', { n: index + 1, total: scenes.length })}</span>
             </p>
-            <h3 id={`${titleId}-scene`} className="ec-scene-title" ref={sceneHeadingRef} tabIndex={-1}>
-              {scene.title}
-            </h3>
+            <h3 id={`${titleId}-scene`} className="ec-scene-title" ref={sceneHeadingRef} tabIndex={-1}>{scene.title}</h3>
             <SceneText scene={scene} />
           </div>
           {visual && <div className="ec-scene-media">{visual}</div>}
@@ -131,46 +108,34 @@ export function ChapterFrame({
             <div className="ec-discovery-head">
               <span className="ec-discovery-seal" aria-hidden="true">✦</span>
               <div>
-                <p className="ec-discovery-label">{mission.role === 'epilogue' ? 'Epilogue card' : 'Discovery card'}</p>
+                <p className="ec-discovery-label">{mission.role === 'epilogue' ? t('ch.epilogueCard') : t('ch.discoveryCard')}</p>
                 <p className="ec-discovery-takeaway">{mission.takeaway}</p>
               </div>
             </div>
             <dl className="ec-facts">
+              <div><dt>{t('ch.question')}</dt><dd>{mission.scienceQuestion}</dd></div>
+              <div><dt>{t('ch.method')}</dt><dd>{mission.method}</dd></div>
+              <div><dt>{t('ch.result')}</dt><dd>{mission.result}</dd></div>
               <div>
-                <dt>Question</dt>
-                <dd>{mission.scienceQuestion}</dd>
-              </div>
-              <div>
-                <dt>Method</dt>
-                <dd>{mission.method}</dd>
-              </div>
-              <div>
-                <dt>Result</dt>
-                <dd>{mission.result}</dd>
-              </div>
-              <div>
-                <dt>Status (as of {formatDate(mission.statusAsOf)})</dt>
+                <dt>{t('ch.statusAsOf', { date: checked })}</dt>
                 <dd>
-                  <span className={`ec-status ec-status--${mission.status}`}>{STATUS_LABELS[mission.status]}</span>{' '}
-                  {mission.statusDetail}
+                  <span className={`ec-status ec-status--${mission.status}`}>{content.statusLabels[mission.status]}</span> {mission.statusDetail}
                 </dd>
               </div>
             </dl>
             <p className="ec-source-inline">
-              Real NASA connection: <SourceLink id={mission.primarySourceId} />
+              {t('ch.nasaConnection')} <SourceLink id={mission.primarySourceId} />
             </p>
             {discoveryExtra}
             <div className="ec-complete" aria-live="polite">
               {completed ? (
                 <>
-                  <p className="ec-feedback ec-feedback--ok">Discovery added to your journal.</p>
-                  <button type="button" className="ec-btn ec-btn--primary" onClick={onBack}>
-                    Return to the atlas
-                  </button>
+                  <p className="ec-feedback ec-feedback--ok">{t('ch.added')}</p>
+                  <button type="button" className="ec-btn ec-btn--primary" onClick={onBack}>{t('ch.returnToAtlas')}</button>
                 </>
               ) : (
                 <button type="button" className="ec-btn ec-btn--primary ec-btn--large" onClick={complete}>
-                  {mission.role === 'epilogue' ? 'Finish the journey' : 'Add discovery to journal'}
+                  {mission.role === 'epilogue' ? t('ch.finishJourney') : t('ch.addToJournal')}
                 </button>
               )}
             </div>
@@ -178,19 +143,15 @@ export function ChapterFrame({
         )}
       </section>
 
-      <nav className="ec-nav" aria-label="Previous and next step">
+      <nav className="ec-nav" aria-label={t('ch.prevNext')}>
         {flow.isFirst ? (
-          <button type="button" className="ec-btn" onClick={onBack}>
-            <span aria-hidden="true">‹</span> Back to atlas
-          </button>
+          <button type="button" className="ec-btn" onClick={onBack}><span aria-hidden="true">‹</span> {t('common.backToAtlas')}</button>
         ) : (
-          <button type="button" className="ec-btn" onClick={flow.prev}>
-            <span aria-hidden="true">‹</span> Previous
-          </button>
+          <button type="button" className="ec-btn" onClick={flow.prev}><span aria-hidden="true">‹</span> {t('ch.previous')}</button>
         )}
         {!flow.isLast && (
           <div className="ec-nav-next">
-            {!flow.canAdvance && <p className="ec-hint" id={`${titleId}-gate`}>{gateHint}</p>}
+            {!flow.canAdvance && <p className="ec-hint" id={`${titleId}-gate`}>{gateHint ?? t('ch.gateDefault')}</p>}
             <button
               type="button"
               className="ec-btn ec-btn--primary"
@@ -198,33 +159,28 @@ export function ChapterFrame({
               disabled={!flow.canAdvance}
               aria-describedby={!flow.canAdvance ? `${titleId}-gate` : undefined}
             >
-              {nextLabel(flow)} <span aria-hidden="true">›</span>
+              {t(nextLabel(flow))} <span aria-hidden="true">›</span>
             </button>
           </div>
         )}
       </nav>
 
       <footer className="ec-sources">
-        <h3 className="ec-sources-title">Sources for this chapter</h3>
+        <h3 className="ec-sources-title">{t('ch.sources')}</h3>
         <ul>
           {chapterSources(id).map((s) => (
             <li key={s.id}>
-              <a href={s.url} target="_blank" rel="noopener noreferrer">
+              <a href={s.url} target="_blank" rel="noopener noreferrer" lang="en">
                 {s.label}
-                <span className="ec-visually-hidden"> (opens in a new tab)</span>
+                <span className="ec-visually-hidden" lang={locale}> {t('common.newTab')}</span>
               </a>{' '}
-              <span className="ec-muted">— {s.publisher}</span>
+              <span className="ec-muted" lang="en">— {s.publisher}</span>
             </li>
           ))}
         </ul>
-        {mission.credits?.map((c) => (
-          <p key={c} className="ec-muted ec-small">
-            {c}
-          </p>
-        ))}
-        <p className="ec-muted ec-small">
-          ECHOES is an independent educational project and is not endorsed by NASA. Facts checked {formatDate(mission.statusAsOf)}.
-        </p>
+        {locale !== 'en' && <p className="ec-muted ec-small">{t('common.sourcesEnglish')}</p>}
+        {mission.credits?.map((c) => <p key={c} className="ec-muted ec-small">{c}</p>)}
+        <p className="ec-muted ec-small">{t('ch.independent', { date: checked })}</p>
       </footer>
     </article>
   );
@@ -233,44 +189,38 @@ export function ChapterFrame({
 export function SceneText({ scene }: { scene: Scene }) {
   return (
     <>
-      {scene.body.map((p) => (
-        <p key={p} className="ec-body">
-          {p}
-        </p>
-      ))}
+      {scene.body.map((p) => <p key={p} className="ec-body">{p}</p>)}
       {scene.narration && <ImaginedNarration text={scene.narration} />}
     </>
   );
 }
 
 export function ImaginedNarration({ text }: { text: string }) {
+  const content = useContent();
   return (
     <figure className="ec-narration">
-      <figcaption className="ec-narration-label">
-        <span aria-hidden="true">✎ </span>
-        {IMAGINED_NARRATION_LABEL}
-      </figcaption>
-      <blockquote>
-        <p>{text}</p>
-      </blockquote>
+      <figcaption className="ec-narration-label"><span aria-hidden="true">✎ </span>{content.narrationLabel}</figcaption>
+      <blockquote><p>{text}</p></blockquote>
     </figure>
   );
 }
 
 export function SourceLink({ id, children }: { id: string; children?: ReactNode }) {
+  const { t, locale } = useT();
   const s = getSource(id);
   if (!s) return null;
   return (
-    <a href={s.url} target="_blank" rel="noopener noreferrer">
+    <a href={s.url} target="_blank" rel="noopener noreferrer" lang={children ? undefined : 'en'}>
       {children ?? s.label}
-      <span className="ec-visually-hidden"> (opens in a new tab)</span>
+      <span className="ec-visually-hidden" lang={locale}> {t('common.newTab')}</span>
     </a>
   );
 }
 
 export function Timeline({ entries }: { entries: ChronologyEntry[] }) {
+  const { t } = useT();
   return (
-    <ol className="ec-timeline" aria-label="Mission timeline">
+    <ol className="ec-timeline" aria-label={t('ch.timeline')}>
       {entries.map((e) => {
         const source = getSource(e.sourceId);
         return (
@@ -280,7 +230,7 @@ export function Timeline({ entries }: { entries: ChronologyEntry[] }) {
               {e.event}{' '}
               {source && (
                 <a href={source.url} target="_blank" rel="noopener noreferrer" className="ec-source-chip">
-                  Source<span className="ec-visually-hidden">: {source.label} (opens in a new tab)</span>
+                  {t('common.source')}<span className="ec-visually-hidden">: <span lang="en">{source.label}</span> {t('common.newTab')}</span>
                 </a>
               )}
             </span>
@@ -292,9 +242,10 @@ export function Timeline({ entries }: { entries: ChronologyEntry[] }) {
 }
 
 export function IllustrativeBadge({ children }: { children: ReactNode }) {
+  const { t } = useT();
   return (
     <p className="ec-badge" role="note">
-      <span className="ec-badge-tag">Simulation</span>
+      <span className="ec-badge-tag">{t('ch.simulation')}</span>
       {children}
     </p>
   );
@@ -310,8 +261,3 @@ export function Art({ caption, decorative = false, children }: { caption: string
   );
 }
 
-function formatDate(iso: string): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  const months = ['Jan.', 'Feb.', 'March', 'April', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'];
-  return `${months[m - 1]} ${d}, ${y}`;
-}

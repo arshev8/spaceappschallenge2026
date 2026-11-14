@@ -67,3 +67,11 @@ Reviewer notes for the four chapter modules in `src/chapters/` and the data in `
 - `prefers-reduced-motion`: CSS animations and transitions are turned off, and the Apollo pulse result appears instantly.
 - There is no audio. The SVG art has `role="img"` with text alternatives. The InSight traces are hidden from assistive tech because each radio label already describes its trace in words.
 - The layout was checked at 360 px with no horizontal overflow.
+
+## 6. Translations (ru, kk, es)
+
+- Science content is translated in `src/content/locales/`; English data remains the source of truth for IDs, answers and sources.
+- Automated checks (`integrity.ts → checkTranslations`): every mission, claim, chronology entry, scene, choice, sample, wave case, match item and Golden Record item is translated; paragraph and list counts match; no empty strings; scenes ≤ 110 words; and the multiset of numbers in each translated claim, date, scene, sample observation and record fact equals the English one.
+- Units: inches/miles are given metric-first in Russian and Kazakh (e.g. "2,5 см (около дюйма)", "45 км (28 миль)"); the 12-inch record keeps "12-дюймовая / 12 дюймдік / 12 pulgadas".
+- Terminology choices to review with native speakers: marsquake = марсотрясение / марс сілкінісі / martemoto; retroreflector = ретрорефлектор (уголковый отражатель) / ретрорефлектор (бұрыштық шағылыстырғыш) / retrorreflector; Golden Record = Золотая пластинка / Алтын пластинка / Disco de Oro.
+- Release checkpoint: a fluent reviewer for each language (Kazakh first) should read every chapter and the game feedback before publication.

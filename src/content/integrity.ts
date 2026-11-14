@@ -33,6 +33,7 @@ import {
   syntheticWaveform,
 } from './experiments.ts';
 import { MAX_SCENE_WORDS, SCRIPTS, sceneWordCount, type GateId } from './scripts.ts';
+import { TRANSLATIONS, localizeContent } from './localize.ts';
 
 export type CheckResult = { name: string; ok: boolean; detail?: string };
 
@@ -145,5 +146,78 @@ export function runIntegrityChecks(): CheckResult[] {
   }));
   add('Golden Record items present', GOLDEN_RECORD_ITEMS.length >= 4);
 
+  results.push(...checkTranslations());
+
   return results;
+}
+
+/** Numbers in a text, with thousands/decimal separators removed ("1,319" → "1319", "3,8" → "38"). */
+export function numbersIn(text: string): string[] {
+  const matches = text.match(/\d{1,3}(?:[,\u00a0\u202f ]\d{3})+(?!\d)|\d+(?:[.,]\d+)?/g) ?? [];
+  return matches.map((m) => m.replace(/[^\d]/g, '')).sort();
+}
+
+const MAX_TRANSLATED_SCENE_WORDS = 110;
+
+/** Every language must cover every key, keep list lengths, keep all numbers, and stay readable. */
+export function checkTranslations(): CheckResult[] {
+  const out: CheckResult[] = [];
+  const add = (name: string, ok: boolean, detail?: string) => out.push({ name, ok, detail });
+  const en = localizeContent('en');
+  for (const [locale, tr] of Object.entries(TRANSLATIONS)) {
+    const loc = localizeContent(locale as keyof typeof TRANSLATIONS);
+    const pairs: [string, string, string][] = [];
+    const empty: string[] = [];
+    const visit = (path: string, value: unknown) => {
+      if (typeof value === 'string') { if (!value.trim()) empty.push(path); }
+      else if (Array.isArray(value)) value.forEach((v, i) => visit(`${path}[${i}]`, v));
+      else if (value && typeof value === 'object') for (const [k, v] of Object.entries(value)) visit(`${path}.${k}`, v);
+    };
+    visit(locale, tr);
+    add(`${locale}: no empty strings`, empty.length === 0, empty.slice(0, 3).join(', '));
+
+    for (const id of CHAPTER_IDS) {
+      const m = tr.missions[id];
+      const base = MISSIONS[id];
+      add(`${locale}/${id}: mission translated`, Boolean(m));
+      if (!m) continue;
+      add(`${locale}/${id}: chronology length`, m.chronology.length === base.chronology.length);
+      add(`${locale}/${id}: all claims translated`, base.claims.every((c) => Boolean(m.claims[c.id])));
+      add(`${locale}/${id}: credits`, m.credits.length === (base.credits?.length ?? 0));
+      base.claims.forEach((c) => pairs.push([`${id} claim ${c.id}`, c.text, m.claims[c.id] ?? '']));
+      base.chronology.forEach((c, i) => pairs.push([`${id} chronology ${i}`, `${c.date} ${c.event}`, `${m.chronology[i]?.date} ${m.chronology[i]?.event}`]));
+      for (const field of ['result', 'statusDetail', 'method'] as const) pairs.push([`${id} ${field}`, base[field], m[field]]);
+      for (const scene of SCRIPTS[id]) {
+        const t = tr.scenes[id]?.[scene.id];
+        add(`${locale}/${id}/${scene.id}: scene translated`, Boolean(t));
+        if (!t) continue;
+        add(`${locale}/${id}/${scene.id}: same paragraph count`, t.body.length === scene.body.length);
+        add(`${locale}/${id}/${scene.id}: narration matches`, Boolean(t.narration) === Boolean(scene.narration));
+        const words = t.body.join(' ').trim().split(/\s+/).length;
+        add(`${locale}/${id}/${scene.id}: ≤ ${MAX_TRANSLATED_SCENE_WORDS} words`, words <= MAX_TRANSLATED_SCENE_WORDS, `${words} words`);
+        pairs.push([`${id}/${scene.id} body`, scene.body.join(' '), t.body.join(' ')]);
+      }
+    }
+    const sameIds = (name: string, a: { id: string }[], b: Record<string, unknown>) =>
+      add(`${locale}: ${name} all translated`, a.every((x) => Boolean(b[x.id])));
+    sameIds('targets', en.targets, tr.targets);
+    sameIds('formulas', en.formulas, tr.formulas);
+    sameIds('gap choices', en.gap, tr.gap);
+    sameIds('layer choices', en.layers, tr.layers);
+    sameIds('samples', en.samples, tr.samples);
+    sameIds('waves', en.waves, tr.waves);
+    sameIds('matches', en.matches, tr.matches);
+    sameIds('golden record', en.goldenRecord, tr.goldenRecord);
+    add(`${locale}: sample property counts`, en.samples.every((s) => tr.samples[s.id]?.properties.length === s.properties.length));
+    en.samples.forEach((s) => pairs.push([`sample ${s.id}`, `${s.observation} ${s.location}`, `${tr.samples[s.id]?.observation} ${tr.samples[s.id]?.location}`]));
+    en.goldenRecord.forEach((r) => pairs.push([`record ${r.id}`, r.fact, tr.goldenRecord[r.id]?.fact ?? '']));
+    add(`${locale}: answers unchanged`, loc.samples.every((s, i) => s.verdict === en.samples[i].verdict) && loc.targets.every((c, i) => c.correct === en.targets[i].correct));
+
+    for (const [name, a, b] of pairs) {
+      const na = numbersIn(a).join(' ');
+      const nb = numbersIn(b).join(' ');
+      add(`${locale}: numbers preserved in ${name}`, na === nb, na === nb ? undefined : `en [${na}] vs ${locale} [${nb}]`);
+    }
+  }
+  return out;
 }

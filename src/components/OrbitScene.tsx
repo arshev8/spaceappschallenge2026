@@ -1,6 +1,8 @@
 import { useId } from 'react';
+import { useT } from '../i18n';
 
 export function OrbitScene({ className = '' }: { className?: string }) {
+  const { t } = useT();
   const uid = useId().replace(/:/g, '');
   const moon = `${uid}-moon`, mars = `${uid}-mars`, earth = `${uid}-earth`, glow = `${uid}-glow`;
   return <svg className={`orbit-scene ${className}`} viewBox="0 0 800 620" fill="none" aria-hidden="true">
@@ -22,7 +24,7 @@ export function OrbitScene({ className = '' }: { className?: string }) {
     </g>
     <circle cx="108" cy="501" r="21" fill={`url(#${earth})`} stroke="#8ee7dd" strokeOpacity=".15" />
     <path d="m94 489 9 2 1 8 10 4-2 12m3-28 6 9" stroke="#c1d3c5" strokeWidth="4" opacity=".35" />
-    <text x="76" y="544" className="scene-label">EARTH</text>
+    <text x="76" y="544" className="scene-label">{t('scene.earth')}</text>
     <g className="scene-moon">
       <circle cx="269" cy="375" r="70" fill={`url(#${moon})`} stroke="#e8effb" strokeOpacity=".12" />
       <g fill="#475362" fillOpacity=".28" stroke="#e9e5dd" strokeOpacity=".1">
@@ -31,8 +33,8 @@ export function OrbitScene({ className = '' }: { className?: string }) {
       <path d="m265 375 11-8 6 5-11 8Z" stroke="#bdf6e9" strokeWidth="1.8" />
       <circle cx="273" cy="374" r="14" stroke="#8ee7dd" strokeOpacity=".4" /><circle cx="273" cy="374" r="22" stroke="#8ee7dd" strokeOpacity=".15" />
       <path d="m287 364 39-33h59" stroke="#8ee7dd" strokeOpacity=".5" />
-      <text x="332" y="316" className="scene-label">THE MOON</text>
-      <text x="332" y="349" className="scene-caption">A mirror still answering.</text>
+      <text x="332" y="316" className="scene-label">{t('scene.moon')}</text>
+      <text x="332" y="349" className="scene-caption">{t('scene.moonCaption')}</text>
     </g>
     <g className="scene-mars">
       <circle cx="552" cy="301" r="100" fill={`url(#${mars})`} stroke="#ef9876" strokeOpacity=".15" />
@@ -41,16 +43,16 @@ export function OrbitScene({ className = '' }: { className?: string }) {
       </g>
       <circle cx="521" cy="302" r="4" fill="#ffccae" /><circle cx="574" cy="329" r="4" fill="#ffccae" />
       <path d="m579 333 41 50h84" stroke="#ef9876" strokeOpacity=".5" />
-      <text x="639" y="408" className="scene-label">MARS</text>
-      <text x="639" y="431" className="scene-caption">Clues in the quiet.</text>
+      <text x="639" y="408" className="scene-label">{t('scene.mars')}</text>
+      <text x="639" y="431" className="scene-caption">{t('scene.marsCaption')}</text>
     </g>
     <g stroke="#dac699" strokeWidth="1.5" transform="translate(626 114) rotate(-24)">
       <ellipse rx="16" ry="10" /><path d="m-13 5 13-8 17 12m-17-12 11 26m-4-9 11 5 7-8-11-5Zm15 3 32 11m-39-10-16 22" /><circle cx="14" cy="19" r="3" />
     </g>
     <path d="m652 102 27-23h57" stroke="#dac699" strokeOpacity=".4" />
-    <text x="622" y="58" className="scene-label scene-label-gold">VOYAGER 1</text>
-    <text x="622" y="155" className="scene-caption">Still moving. Still discovering.</text>
+    <text x="622" y="58" className="scene-label scene-label-gold">{t('scene.voyager')}</text>
+    <text x="622" y="155" className="scene-caption">{t('scene.voyagerCaption')}</text>
     <path d="M686 116q14 5 15 19m-10-26q23 6 24 28" stroke="#dac699" strokeOpacity=".4" />
-    <text x="363" y="559" className="scene-coordinate">HUMAN CURIOSITY HAS NO HORIZON</text>
+    <text x="363" y="559" className="scene-coordinate">{t('scene.horizon')}</text>
   </svg>;
 }

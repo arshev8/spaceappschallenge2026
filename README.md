@@ -39,6 +39,18 @@ Each exhibit follows the same five stages: **mission briefing → the science �
 
 Game logic is pure TypeScript in `src/content/experiments.ts`; the chapters in `src/chapters/` render it.
 
+## Languages
+
+ECHOES is available in **English, Russian (Русский), Kazakh (Қазақша) and Spanish (Español)**. A language selector sits in the header on every page. The first visit follows the browser's language (falling back to English); the choice is saved in `localStorage` (`echoes.locale.v1`) and written to `<html lang>`, so screen readers pronounce each language correctly and lazy-loaded chapters switch instantly.
+
+- UI strings: `src/i18n/messages/{en,ru,kk,es}.ts`. English defines the keys; TypeScript fails the build if another language misses one, and a test checks that every translation keeps the same `{placeholders}`.
+- Science content (missions, scenes, game samples, feedback): `src/content/locales/{ru,kk,es}.ts`, laid over the English data by `src/content/localize.ts`. Answers, sources and structure stay shared, so a translation cannot change a game's answer key.
+- `node src/content/integrity.check.mjs` verifies every translation is complete and that **every number in the English science text (dates, distances, counts) appears unchanged in each translation**.
+- Numbers and dates use `Intl` per language (e.g. `384 400 км`, `2,564 s`), with a fallback for runtimes that lack Kazakh locale data.
+- NASA source pages are English; non-English pages say so next to the source list. Mission and instrument names follow common usage in each language (e.g. «Аполлон-11», Apolo 11).
+
+Translations were produced with AI assistance and checked for completeness and numeric accuracy automatically. **Have a fluent speaker review each language — especially Kazakh — before publication.**
+
 ## Architecture and integration
 
 - `src/App.tsx`: layout, navigation, page titles, route focus, and completion coordination.

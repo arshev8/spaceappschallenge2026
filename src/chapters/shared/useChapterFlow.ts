@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from 'react';
-import type { ChapterId } from '../../content/missions.ts';
-import { SCRIPTS, type Scene } from '../../content/scripts.ts';
+import type { Scene } from '../../content/scripts.ts';
 
 export type ChapterFlow = {
   scenes: Scene[];
@@ -20,8 +19,7 @@ export type ChapterFlow = {
  * Linear scene navigation. `gateSolved` reports whether the current scene's
  * experiment (if any) is complete; forward navigation is blocked until it is.
  */
-export function useChapterFlow(id: ChapterId, gateSolved: (scene: Scene) => boolean): ChapterFlow {
-  const scenes = SCRIPTS[id];
+export function useChapterFlow(scenes: Scene[], gateSolved: (scene: Scene) => boolean): ChapterFlow {
   const [index, setIndex] = useState(0);
   const [maxReached, setMaxReached] = useState(0);
   const scene = scenes[index];
